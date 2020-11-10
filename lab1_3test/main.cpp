@@ -5,7 +5,7 @@
 //  Created by Максим Палёхин on 27.10.2020.
 //
 // Название шаблонов разные, потому что xcode обращается к первому объявлению и выдает ошибку
-
+// в строках
 #include <iostream>
 #include <fstream>
 
@@ -19,17 +19,17 @@ private:
     //указатель на предыдущий и следующий элемент
     Element* next;
     Element* prev;
-
+    
 public:
     T field;
     //доступ к полю *next
     virtual Element* getNext() {return next;}
     virtual void setNext(Element* value) {next = value;}
-
+    
     //доступ к полю *prev
     virtual Element* getPrevious() {return prev;}
     virtual void setPrevious(Element* value) {prev = value;}
-
+    
     //доступ к полю с хранимой информацией field
     virtual T getValue() {return field;}
     virtual void setValue(T value) {field = value;}
@@ -53,40 +53,40 @@ protected:
     //для удобства храним количество элементов
     int num;
 public:
-
+    
     virtual int Number() { return num; }
-
+    
     virtual Element<R>* getBegin() { return head; }
-
+    
     virtual Element<R>* getEnd() { return tail; }
-
-
+    
+    
     LinkedListParent()
     {
         //конструктор без параметров
         head = NULL;
         num = 0;
     }
-
+    
     //чисто виртуальная функция: пока не определимся с типом списка, не сможем реализовать добавление
     virtual Element<R>* push(R value) = 0;
-
+    
     //чисто виртуальная функция: пока не определимся с типом списка, не сможем реализовать удаление
     virtual Element<R>* pop() = 0;
-
+    
     virtual ~LinkedListParent()
     {
         //деструктор - освобождение памяти
         
     }
-
+    
     //получение элемента по индексу - какова асимптотическая оценка этого действия?
     virtual Element<R>* operator[](int i)
     {
         //индексация
         if (i<0 || i>num) return NULL;
         int k = 0;
-
+        
         //ищем i-й элемент - вставем в начало и отсчитываем i шагов вперед
         Element<R>* cur = head;
         for (k = 0; k < i; k++)
@@ -95,7 +95,7 @@ public:
         }
         return cur;
     }
-
+    
     template<class T> friend ostream& operator<< (ostream& ustream, LinkedListParent<T>& obj);
     template<class T> friend istream& operator >> (istream& ustream, LinkedListParent<T>& obj);
 };
@@ -107,15 +107,15 @@ ostream& operator << (ostream& ustream, LinkedListParent<T>& obj)
     {
         ustream << obj.num << "\n";
         for (Element<T>* current = obj.getBegin(); current != NULL; current = current->getNext())
-            ustream << current->getValue() << " ";
+        ustream << current->getValue() << " ";
         return ustream;
     }
-
+    
     ustream << "\nLength: " << obj.num+1 << "\n";
     int i = 0;
     for (Element<T>* current = obj.getBegin(); current != NULL; current = current->getNext(), i++)
-        ustream << "arr[" << i << "] = " << current->getValue() << "\n";
-
+    ustream << "arr[" << i << "] = " << current->getValue() << "\n";
+    
     return ustream;
 }
 
@@ -140,18 +140,18 @@ template<typename ValueType>
 class ListIterator : public std::iterator<std::input_iterator_tag, ValueType>
 {
 private:
-
+    
 public:
     //конструкторы
     ListIterator() { ptr = NULL; }
     ListIterator(Element<ValueType>* p) { ptr = p; }
     ListIterator(const ListIterator& it) { ptr = it.ptr; }
-
+    
     //методы работы с итераторами
     //присваивание
     ListIterator& operator=(const ListIterator& it) { ptr = it.ptr; return *this; }
     ListIterator& operator=(Element<ValueType>* p) { ptr = p; return *this; }
-
+    
     //проверка итераторов на равенство
     bool operator!=(ListIterator const& other) const { return ptr != other.ptr; }
     bool operator==(ListIterator const& other) const { return ptr == other.ptr; }
@@ -174,7 +174,7 @@ public:
             ptr = ptr->getNext();
         return *this;
     } //p++
-
+    
     ListIterator& operator--()
     {
         if (ptr->getPrevious() != NULL && ptr != NULL)
@@ -199,9 +199,9 @@ class IteratedLinkedList : public LinkedListParent<T>
 public:
     IteratedLinkedList() : LinkedListParent<T>() { }
     virtual ~IteratedLinkedList() {  }
-
+    
     ListIterator<T> iterator;
-
+    
     ListIterator<T> begin() { ListIterator<T> it = LinkedListParent<T>::head; return it; }
     ListIterator<T> end() { ListIterator<T> it = LinkedListParent<T>::tail; return it; }
 };
@@ -213,7 +213,7 @@ class Stack : public IteratedLinkedList<T>
 public:
     Stack() : IteratedLinkedList<T>() { std::cout << "\nStack constructor"; }
     virtual ~Stack() { std::cout << "\nStack destructor"; }
-
+    
     virtual Element<T>* pop()
     {//удаление из стэка
         if (LinkedListParent<T>::tail == NULL)
@@ -252,7 +252,7 @@ public:
             newElem->setPrevious(LinkedListParent<T>::tail);
             LinkedListParent<T>::tail->setNext(newElem);
             LinkedListParent<T>::tail = newElem;
-           
+            
         }
         LinkedListParent<T>::num++;
         return LinkedListParent<T>::tail;
@@ -267,14 +267,14 @@ private:
         newElem->setNext(LinkedListParent<T>::head);
         LinkedListParent<T>::head->setPrevious(newElem);
         LinkedListParent<T>::head = newElem;
-
+        
         LinkedListParent<T>::num++;
     }
     void right(Element<T>* newElem){//вставляем справа
         newElem->setPrevious(LinkedListParent<T>::tail);
         LinkedListParent<T>::tail->setNext(newElem);
         LinkedListParent<T>::tail = newElem;
-
+        
         LinkedListParent<T>::num++;
     }
 public:
@@ -302,7 +302,7 @@ public:
                 if (currentIndex->getValue() < value){left(newElem);}
                 if (currentIndex->getValue() >= value){right(newElem);}
             }
-
+            
             if (currentIndex == LinkedListParent<T>::head)
             {//Если в списке больше 2 элементов, и нужно вставить около начала
                 if (currentIndex->getValue() < value){left(newElem);}
@@ -319,27 +319,44 @@ public:
             newElem->setNext(currentIndex);
             currentIndex->setPrevious(newElem);
             newElem->setPrevious(temp);
-
+            
         }
         LinkedListParent<T>::num++;
         return LinkedListParent<T>::tail;
     }
-    virtual void filter(Stack<T>& S, T value) {if (value%3==0) {S.push(value);}}
+    virtual bool predicat(T elem, int value) {
+        return elem%value==0;
+    }
+    //virtual void filter(Stack<T>& S, T value) {if (value%3==0) {S.push(value);}}
+    virtual overriddenStack filter(Stack<T>& S, T value) {
+        overriddenStack<T> res;
+        Element<T>* cur = LinkedListParent<T>::head;
+        while (cur != LinkedListParent<T>::tail)
+        {//Прогоняемся до тех пор, пока не поймем, куда вставлять
+            if (predicat(S,(cur->getValue())))
+                res.push(cur->getValue());
+            cur = cur->getNext();
+        }
+        res.push(cur->getValue());
+        return res;
+        if (predicat(S, value)) {
+            res.push(value);
+        }
+    }
 };
-
 
 int main()
 {
     overriddenStack<int> D;
-    D.filter(D,1);
-    D.filter(D,0);
-    D.filter(D,2);
-    D.filter(D,9);
-    D.filter(D,680);
-    D.filter(D,120);
-
+    D.push(1);
+    D.push(0);
+    D.push(2);
+    D.push(9);
+    D.push(680);
+    D.push(120);
+    
     Element<int>* el = D.pop();
-
+    
     std::cout << "\nElement = " << el->getValue();
     std::cout << D << "\n\n";
     D.iterator = D.begin();
@@ -350,7 +367,7 @@ int main()
     }
     std::cout << *D.iterator;
     std::cout << "\n";
-
+    
     return 0;
 }
 
