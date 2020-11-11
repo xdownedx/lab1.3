@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  lab1_3test
+//  lab1_3 lab 1,4
 //
 //  Created by Максим Палёхин on 27.10.2020.
 //
