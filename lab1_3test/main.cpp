@@ -11,6 +11,87 @@
 
 using namespace std;
 
+
+class SchoolMan {
+
+private:
+    string name;
+    string lastName;
+    string sex;
+    int group;
+    string dateOfBorn;
+    string adress;
+public:
+    SchoolMan(){}
+
+    SchoolMan(string name, string lastName, string sex, int group, string dateOfBorn, string adress) {
+        this->name = name;
+        this->lastName = lastName;
+        this->sex = sex;
+        this->group = group;
+        this->dateOfBorn = dateOfBorn;
+        this->adress = adress;
+
+    }
+
+    string getName() {
+        return name;
+    }
+    string getLastName() {
+        return lastName;
+    }
+    string getSex() {
+        return sex;
+    }
+    int getGroup() {
+        return group;
+    }
+    string getDateOfBorn() {
+        return dateOfBorn;
+    }
+    string getAdress() {
+        return adress;
+    }
+
+    friend ostream& operator<<(ostream& os, const SchoolMan& schoolMan)
+    {
+        os << "" << schoolMan.name << " | " << schoolMan.lastName << " | " << schoolMan.sex << " | "
+            << schoolMan.group << " | " << schoolMan.dateOfBorn << " | " << schoolMan.adress << "\n";
+        return os;
+    }
+    bool operator==(SchoolMan const& other) const {
+        return ((name == other.name) && (lastName == other.lastName) && (sex == other.sex) &&
+            (group == other.group) && (dateOfBorn == other.dateOfBorn) && (adress == other.adress));
+    }
+    bool operator!=(SchoolMan const& other) const {
+        return ((name != other.name) && (lastName != other.lastName) && (sex != other.sex) &&
+            (group != other.group) && (dateOfBorn != other.dateOfBorn) && (adress != other.adress));
+    }
+    
+    friend bool operator > (SchoolMan const& first, SchoolMan const& second){
+        return first.group>second.group;
+    };
+
+    friend bool operator < (SchoolMan const& first, SchoolMan const & second){
+        return first.group<second.group;
+    };
+    friend bool operator < (SchoolMan const& first, int const& second){
+        return first.group<second;
+    };
+
+    friend bool operator >= (SchoolMan const& first, SchoolMan const& second){
+        return first.group>=second.group;
+    };
+    friend bool operator <= (SchoolMan const& first, SchoolMan const& second){
+        return first.group<=second.group;
+    };
+    friend int operator%(SchoolMan const& first, SchoolMan const& second){
+        return first.group%second.group;
+    };
+
+};
+
+
 template <class T>
 class Element
 {
@@ -258,21 +339,6 @@ public:
 template<class T>
 class overriddenStack :public Stack<T>
 {
-private:
-    void left(Element<T>* newElem){//вставляем слева
-        newElem->setNext(LinkedListParent<T>::head);
-        LinkedListParent<T>::head->setPrevious(newElem);
-        LinkedListParent<T>::head = newElem;
-        
-        LinkedListParent<T>::num++;
-    }
-    void right(Element<T>* newElem){//вставляем справа
-        newElem->setPrevious(LinkedListParent<T>::tail);
-        LinkedListParent<T>::tail->setNext(newElem);
-        LinkedListParent<T>::tail = newElem;
-        
-        LinkedListParent<T>::num++;
-    }
 public:
     virtual Element<T>* push(T value)
     {
@@ -370,16 +436,16 @@ public:
         LinkedListParent<T>::num++;
         return LinkedListParent<T>::tail;
     }
-    virtual bool predicat(T elem, int value) {
+    virtual bool predicat(T elem, T value) {
         return elem%value==0;
     }
-    //virtual void filter(Stack<T>& S, T value) {if (value%3==0) {S.push(value);}}
+
     virtual overriddenStack filter(T value) {
         overriddenStack<T> res;
         Element<T>* cur = LinkedListParent<T>::head;
         while (cur != LinkedListParent<T>::tail)
         {//Прогоняемся до тех пор, пока не поймем, куда вставлять
-            if (predicat((cur->getValue()), value))
+            if (predicat(cur->getValue(), value))
                 res.push(cur->getValue());
             cur = cur->getNext();
         }
@@ -387,6 +453,114 @@ public:
         
     }
 };
+
+template <class T>
+class overriddenStackSchoolman : public overriddenStack<T>
+{
+public:
+    overriddenStackSchoolman() {  }
+    virtual ~overriddenStackSchoolman() {  }
+
+    
+    virtual Element<T>* push(T value)
+    {
+        Element<T>* newElem = new Element<T>();
+        newElem->setValue(value);
+        newElem->setNext(NULL);
+        newElem->setPrevious(NULL);
+
+        if (LinkedListParent<T>::num == 0)
+        {
+            LinkedListParent<T>::head = LinkedListParent<T>::tail = newElem;
+        }
+        else
+        {
+            Element<T>* cur = LinkedListParent<T>::head;
+            while (cur != LinkedListParent<T>::tail && cur->getValue() > value)
+            {
+                cur = cur->getNext();
+            }
+
+            if (cur == LinkedListParent<T>::head && cur == LinkedListParent<T>::tail)
+            {
+                if (cur->getValue() < value)
+                {
+                    newElem->setNext(LinkedListParent<T>::head);
+                    LinkedListParent<T>::head->setPrevious(newElem);
+                    LinkedListParent<T>::head = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                    
+                }
+                if (cur->getValue() >= value)
+                {
+                    LinkedListParent<T>::tail->setNext(newElem);
+                    newElem->setPrevious(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+            }
+
+            if (cur == LinkedListParent<T>::head)
+            {
+                if (cur->getValue() < value)
+                {
+                    newElem->setNext(LinkedListParent<T>::head);
+                    LinkedListParent<T>::head->setPrevious(newElem);
+                    LinkedListParent<T>::head = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+                if (cur->getValue() >= value)
+                {
+                    newElem->setPrevious(LinkedListParent<T>::head);
+                    newElem->setNext(LinkedListParent<T>::head->getNext());
+                    LinkedListParent<T>::head->getNext()->setPrevious(newElem);
+                    LinkedListParent<T>::head->setNext(newElem);
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+            }
+            if (cur == LinkedListParent<T>::tail)
+            {
+                if (cur->getValue() < value)
+                {
+                    newElem->setPrevious(LinkedListParent<T>::tail->getPrevious());
+                    LinkedListParent<T>::tail->getPrevious()->setNext(newElem);
+                    newElem->setNext(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail->setPrevious(newElem);
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+                if (cur->getValue() >= value)
+                {
+                    newElem->setPrevious(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail->setNext(newElem);
+                    LinkedListParent<T>::tail = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+            }
+
+
+            Element<T>* temp = cur->getPrevious();
+            cur->getPrevious()->setNext(newElem);
+            newElem->setNext(cur);
+            cur->setPrevious(newElem);
+            newElem->setPrevious(temp);
+        }
+        LinkedListParent<T>::num++;
+        return LinkedListParent<T>::tail;
+    }
+};
+
 
 int main()
 {
@@ -424,7 +598,30 @@ int main()
     }
     cout << (*p).getValue() << " ";
 
+    cout << "\nЛаба 1.5:\n";
+
+    SchoolMan scm1("Виктория", "Шуманская", "Женский", 10, "07.04.1999", "Рязань");
+    SchoolMan scm2("Максим", "Палёхин", "Мужской", 1, "20.12.2001", "Москва");
+    SchoolMan scm3("Антон", "Дунаевский", "Мужской", 8, "12.11.2001", "Павловский пасад");
+    SchoolMan scm4("Анатолий", "Красавин", "Мужской", 4, "01.02.2002", "Ростов");
+    SchoolMan scm5("Александр", "Краснов", "Мужской", 3, "08.11.2001", "Ростов");
+    SchoolMan scm6("Александр", "Сычев", "Мужской", 2, "04.01.2001", "Электросталь");
+    SchoolMan scm8("Романов", "Алексей", "Мужской", 9, "23.05.2001", "Домодедово");
     
+    SchoolMan top("","","",3,"","");
+    overriddenStackSchoolman<SchoolMan> DSchoolman;
+    overriddenStackSchoolman<SchoolMan> DSchoolmanFiltred;
+
+    DSchoolman.push(scm1);
+    DSchoolman.push(scm2);
+    DSchoolman.push(scm3);
+    DSchoolman.push(scm4);
+    DSchoolman.push(scm5);
+    DSchoolman.push(scm6);
+    DSchoolman.push(scm8);
+
+    cout<<DSchoolman<<endl;
+
     return 0;
 }
 
