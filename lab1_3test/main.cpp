@@ -111,7 +111,7 @@ ostream& operator << (ostream& ustream, LinkedListParent<T>& obj)
         return ustream;
     }
     
-    ustream << "\nLength: " << obj.num+1 << "\n";
+    ustream << "\nLength: " << obj.num << "\n";
     int i = 0;
     for (Element<T>* current = obj.getBegin(); current != NULL; current = current->getNext(), i++)
     ustream << "arr[" << i << "] = " << current->getValue() << "\n";
@@ -139,19 +139,17 @@ istream& operator >> (istream& ustream, LinkedListParent<T>& obj)
 template<typename ValueType>
 class ListIterator : public std::iterator<std::input_iterator_tag, ValueType>
 {
-private:
-    
 public:
     //конструкторы
     ListIterator() { ptr = NULL; }
     ListIterator(Element<ValueType>* p) { ptr = p; }
     ListIterator(const ListIterator& it) { ptr = it.ptr; }
-    
+
     //методы работы с итераторами
     //присваивание
     ListIterator& operator=(const ListIterator& it) { ptr = it.ptr; return *this; }
     ListIterator& operator=(Element<ValueType>* p) { ptr = p; return *this; }
-    
+
     //проверка итераторов на равенство
     bool operator!=(ListIterator const& other) const { return ptr != other.ptr; }
     bool operator==(ListIterator const& other) const { return ptr == other.ptr; }
@@ -160,7 +158,6 @@ public:
     {
         return *ptr;
     }
-    //перемещение с помощью итераторов
     //перемещение с помощью итераторов
     ListIterator& operator++()
     {
@@ -174,7 +171,7 @@ public:
             ptr = ptr->getNext();
         return *this;
     } //p++
-    
+
     ListIterator& operator--()
     {
         if (ptr->getPrevious() != NULL && ptr != NULL)
@@ -191,7 +188,6 @@ private:
     //текущий элемент
     Element<ValueType>* ptr;
 };
-
 //класс итерируемый список - наследник связного списка, родитель для Очереди и Стека
 template <class T>
 class IteratedLinkedList : public LinkedListParent<T>
@@ -211,8 +207,8 @@ template <class T>
 class Stack : public IteratedLinkedList<T>
 {
 public:
-    Stack() : IteratedLinkedList<T>() { std::cout << "\nStack constructor"; }
-    virtual ~Stack() { std::cout << "\nStack destructor"; }
+    Stack() : IteratedLinkedList<T>() { std::cout << "\nStack constructor\n"; }
+    virtual ~Stack() { std::cout << "\nStack destructor\n"; }
     
     virtual Element<T>* pop()
     {//удаление из стэка
@@ -284,40 +280,90 @@ public:
         newElem->setValue(value);
         newElem->setNext(NULL);
         newElem->setPrevious(NULL);
-        
+
         if (LinkedListParent<T>::num == 0)
-        {//список пустой
+        {//Если список пустой
             LinkedListParent<T>::head = LinkedListParent<T>::tail = newElem;
         }
         else
-        {
-            Element<T>* currentIndex = LinkedListParent<T>::head;
-            while (currentIndex != LinkedListParent<T>::tail && currentIndex->getValue() > value)
-            {//узнаем индекс вставки
-                currentIndex = currentIndex->getNext();
+        {//Вставка при "нормальном" списке
+            Element<T>* cur = LinkedListParent<T>::head;
+            while (cur != LinkedListParent<T>::tail&& cur->getValue() > value)
+            {//Прогоняемся до тех пор, пока не поймем, куда вставлять
+                cur = cur->getNext();
             }
-            
-            if (currentIndex == LinkedListParent<T>::head && currentIndex == LinkedListParent<T>::tail)
+
+            if (cur == LinkedListParent<T>::head&& cur == LinkedListParent<T>::tail)
             {//Если в списке один элемент
-                if (currentIndex->getValue() < value){left(newElem);}
-                if (currentIndex->getValue() >= value){right(newElem);}
+                if (cur->getValue() < value)
+                {//Если надо вставить влево
+                    newElem->setNext(LinkedListParent<T>::head);
+                    LinkedListParent<T>::head->setPrevious(newElem);
+                    LinkedListParent<T>::head = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+                if (cur->getValue() >= value)
+                {//Если надо ставить вправо
+                    LinkedListParent<T>::tail->setNext(newElem);
+                    newElem->setPrevious(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
             }
-            
-            if (currentIndex == LinkedListParent<T>::head)
-            {//Если в списке больше 2 элементов, и нужно вставить около начала
-                if (currentIndex->getValue() < value){left(newElem);}
-                if (currentIndex->getValue() >= value){right(newElem);}
+
+            if (cur == LinkedListParent<T>::head)
+            {//Если в списке 2 или более элемента, и необходимо вставить около головы
+                if (cur->getValue() < value)
+                {//Вставить слева от гловы
+                    newElem->setNext(LinkedListParent<T>::head);
+                    LinkedListParent<T>::head->setPrevious(newElem);
+                    LinkedListParent<T>::head = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+                if (cur->getValue() >= value)
+                {//Вставить справа от головы
+                    newElem->setPrevious(LinkedListParent<T>::head);
+                    newElem->setNext(LinkedListParent<T>::head->getNext());
+                    LinkedListParent<T>::head->getNext()->setPrevious(newElem);
+                    LinkedListParent<T>::head->setNext(newElem);
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
             }
-            if (currentIndex == LinkedListParent<T>::tail)
-            {//Если в списке больше 2 элементов, и нужно вставить около конца
-                if (currentIndex->getValue() < value){left(newElem);}
-                if (currentIndex->getValue() >= value){right(newElem);}
+            if (cur == LinkedListParent<T>::tail)
+            {//Если в списке 2 или более элемента, и необходимо вставить около хвоста
+                if (cur->getValue() < value)
+                {//Если надо вставить слева
+                    newElem->setPrevious(LinkedListParent<T>::tail->getPrevious());
+                    LinkedListParent<T>::tail->getPrevious()->setNext(newElem);
+                    newElem->setNext(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail->setPrevious(newElem);
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
+                if (cur->getValue() >= value)
+                {//Если надо вставить вправо
+                    newElem->setPrevious(LinkedListParent<T>::tail);
+                    LinkedListParent<T>::tail->setNext(newElem);
+                    LinkedListParent<T>::tail = newElem;
+
+                    LinkedListParent<T>::num++;
+                    return LinkedListParent<T>::tail;
+                }
             }
             //Если вставлять надо в середину
-            Element<T>* temp = currentIndex->getPrevious();
-            currentIndex->getPrevious()->setNext(newElem);
-            newElem->setNext(currentIndex);
-            currentIndex->setPrevious(newElem);
+            Element<T>* temp = cur->getPrevious();
+            cur->getPrevious()->setNext(newElem);
+            newElem->setNext(cur);
+            cur->setPrevious(newElem);
             newElem->setPrevious(temp);
             
         }
@@ -354,18 +400,30 @@ int main()
     
     Element<int>* el = D.pop();
     overriddenStack<int> V = D.filter(3);
-    std::cout << V << "\n\n";
-
-    std::cout << "\nElement = " << el->getValue();
-    std::cout << D << "\n\n";
-    D.iterator = D.begin();
-    while (D.iterator != D.end())
+    cout << "\nРабота фильтра: "<< "\n";
+    cout << V << "\n\n";
+    cout << "\nРабота pop(): "<< "\n";
+    cout << "\nDelete element = " << el->getValue();
+    cout << D << "\n\n";
+    cout << "Лаба1.4" << "\n";
+    cout << "\nИтераторы:\n";
+    ListIterator<int> p = D.begin();
+    while (p != D.end())
     {
-        std::cout << *D.iterator << " ";
-        D.iterator++;
+    cout << (*p).getValue() << " ";
+    p++;
     }
-    std::cout << *D.iterator;
-    std::cout << "\n";
+    cout << (*p).getValue() << " ";
+
+    cout << "\nИтераторы в обратном порядке:\n";
+    p = D.end();
+    while (p != D.begin())
+    {
+        cout << (*p).getValue() << " ";
+        p--;
+    }
+    cout << (*p).getValue() << " ";
+
     
     return 0;
 }
