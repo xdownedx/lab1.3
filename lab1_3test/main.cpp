@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  lab1_3 lab 1,4
+//  lab1_3 lab 1,4 lab 1.5
 //
 //  Created by Максим Палёхин on 27.10.2020.
 //
@@ -597,6 +597,7 @@ int main()
         p--;
     }
     cout << (*p).getValue() << " ";
+    cout << "\n\n\n";
 
     cout << "\nЛаба 1.5:\n";
 
