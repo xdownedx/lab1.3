@@ -328,20 +328,17 @@ public:
         return elem%value==0;
     }
     //virtual void filter(Stack<T>& S, T value) {if (value%3==0) {S.push(value);}}
-    virtual overriddenStack filter(Stack<T>& S, T value) {
+    virtual overriddenStack filter(T value) {
         overriddenStack<T> res;
         Element<T>* cur = LinkedListParent<T>::head;
         while (cur != LinkedListParent<T>::tail)
         {//Прогоняемся до тех пор, пока не поймем, куда вставлять
-            if (predicat(S,(cur->getValue())))
+            if (predicat((cur->getValue()), value))
                 res.push(cur->getValue());
             cur = cur->getNext();
         }
-        res.push(cur->getValue());
         return res;
-        if (predicat(S, value)) {
-            res.push(value);
-        }
+        
     }
 };
 
@@ -356,7 +353,9 @@ int main()
     D.push(120);
     
     Element<int>* el = D.pop();
-    
+    overriddenStack<int> V = D.filter(3);
+    std::cout << V << "\n\n";
+
     std::cout << "\nElement = " << el->getValue();
     std::cout << D << "\n\n";
     D.iterator = D.begin();
