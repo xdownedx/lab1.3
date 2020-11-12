@@ -145,7 +145,7 @@ public:
     LinkedListParent()
     {
         //конструктор без параметров
-        head = NULL;
+        head = tail = NULL;
         num = 0;
     }
     
@@ -242,10 +242,10 @@ public:
     //перемещение с помощью итераторов
     ListIterator& operator++()
     {
-        if(ptr->getNext() != NULL && ptr!=NULL)
+        if(ptr != NULL && ptr->getNext() != NULL )
             ptr = ptr->getNext();
         return *this;
-    } //++p Можно ли ptr двигать вперед? Ответ: if(ptr!=tail)...
+    } //++p Можно ли ptr двигать вперед? Ответ: if(ptr!=tail)pus...
     ListIterator& operator++(int v)
     {
         if (ptr->getNext() != NULL && ptr != NULL)
@@ -277,49 +277,47 @@ public:
     IteratedLinkedList() : LinkedListParent<T>() { }
     virtual ~IteratedLinkedList() {  }
     
-    ListIterator<T> iterator;
-    
     ListIterator<T> begin() { ListIterator<T> it = LinkedListParent<T>::head; return it; }
     ListIterator<T> end() { ListIterator<T> it = LinkedListParent<T>::tail; return it; }
 };
 
-// Класс стэка
+//Класс очереди
 template <class T>
-class Stack : public IteratedLinkedList<T>
+class Queue : public IteratedLinkedList<T>
 {
 public:
-    Stack() : IteratedLinkedList<T>() { std::cout << "\nStack constructor\n"; }
-    virtual ~Stack() { std::cout << "\nStack destructor\n"; }
-    
+    Queue() : IteratedLinkedList<T>() {  }
+    virtual ~Queue() {  }
+
     virtual Element<T>* pop()
-    {//удаление из стэка
-        if (LinkedListParent<T>::tail == NULL)
-        {
+    {//Удаление из очереди
+        Element<T>* res = LinkedListParent<T>::head;
+        if (LinkedListParent<T>::head == NULL)
             return NULL;
-        }
-        Element<T>* res = LinkedListParent<T>::tail;
         if (LinkedListParent<T>::head == LinkedListParent<T>::tail)
         {
-            LinkedListParent<T>::head == LinkedListParent<T>::tail == NULL;
+            LinkedListParent<T>::head = LinkedListParent<T>::tail = NULL;
             LinkedListParent<T>::num = 0;
+            return res;
         }
         else
         {
-            Element<T>* newTail = LinkedListParent<T>::tail->getPrevious();
-            newTail->setNext(NULL);
-            LinkedListParent<T>::tail->setNext(NULL);
+            Element<T>* newHead = LinkedListParent<T>::head->getNext();
+            newHead->setPrevious(NULL);
+            LinkedListParent<T>::head->setNext(NULL);
             LinkedListParent<T>::num--;
-            LinkedListParent<T>::tail = newTail;
+            LinkedListParent<T>::head = newHead;
         }
         return res;
     }
+
     virtual Element<T>* push(T value)
-    {//добавление в стэк
+    {//Добавление в очередь
         Element<T>* newElem = new Element<T>;
         newElem->setValue(value);
         newElem->setNext(NULL);
         newElem->setPrevious(NULL);
-        
+
         if (LinkedListParent<T>::num == 0)
         {
             LinkedListParent<T>::head = LinkedListParent<T>::tail = newElem;
@@ -329,10 +327,44 @@ public:
             newElem->setPrevious(LinkedListParent<T>::tail);
             LinkedListParent<T>::tail->setNext(newElem);
             LinkedListParent<T>::tail = newElem;
-            
         }
         LinkedListParent<T>::num++;
+
         return LinkedListParent<T>::tail;
+    }
+};
+
+
+
+//Класс стэка, наследник очереди (Переопределн только метод удаления, так как вставка наследуется от очереди)
+template <class T>
+class Stack : public Queue<T>
+{
+public:
+    Stack() {  }
+    virtual ~Stack() {  }
+
+
+    virtual Element<T>* pop()
+    {
+        Element<T>* res = LinkedListParent<T>::tail;
+        if (LinkedListParent<T>::tail == NULL)
+            return NULL;
+        if (LinkedListParent<T>::head == LinkedListParent<T>::tail)
+        {
+            LinkedListParent<T>::head = LinkedListParent<T>::tail = NULL;
+            LinkedListParent<T>::num = 0;
+            return res;
+        }
+        else
+        {
+            Element<T>* newTail = LinkedListParent<T>::tail->getPrevious();
+            newTail->setNext(NULL);
+            LinkedListParent<T>::head->setPrevious(NULL);
+            LinkedListParent<T>::num--;
+            LinkedListParent<T>::tail = newTail;
+        }
+        return res;
     }
 };
 
